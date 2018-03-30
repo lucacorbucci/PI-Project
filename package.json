@@ -1,0 +1,10 @@
+{
+  "name": "labirinto-progetto-PI",
+  "version": "0.1.0",
+  "devDependencies": {
+    "express": "*"
+  },
+  "dependencies": {
+    "socket.io": "^2.0.4"
+  }
+}

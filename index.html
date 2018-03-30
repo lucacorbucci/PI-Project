@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<link rel="stylesheet" type="text/css" href="game.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="//davidshimjs.github.com/qrcodejs/qrcode.min.js"></script>
+<script src = "/socket.io/socket.io.js"></script>
+<script src="Lib/Three.js"></script>
+<script src="Lib/Detector.js"></script>
+<script src="Lib/cannon.js"></script>
+<script src="Lib/array.js"></script>
+<script src="Lib/cell.js"></script>
+<script src="Lib/graph.js"></script>
+<script src="Lib/maze.js"></script>
+<script src="Lib/mazeGenerator.js"></script>
+<script src="Lib/underscore-min.js"></script>
+<script src="script.js"></script>
+
+
+<audio autoplay loop>
+ <source src="FireIn.mp3" type="audio/mp3">
+</audio>
+
+<head>
+  <meta charset="utf-8">
+
+  <title>Labirint js</title>
+</head>
+
+<body>
+
+<div class="menu" id="mainMenu">
+  <div class="title">
+    TITOLO DEL GIOCO
+  </div>
+  <div onclick="stopMusic()" class="music">
+    Stop Music
+  </div>
+  <div class="options" onclick="chooseMode()" style="margin-top:210px">
+    AVVIO
+  </div>
+  <div class="options" onclick="getStats()">
+    CLASSIFICA
+  </div>
+  <div class="options" onclick="getAutore()">
+    AUTORE
+  </div>
+</div>
+
+<div id = "autore" class = "menu" style = "visibility:hidden">
+  <div class = "presentazione">
+    Progetto Programmazione di interfacce
+    Anno accademico 2017/18
+    Studente: Luca Corbucci
+    Matricola: 516450
+  </div>
+  <div class = "options_lit" onclick="back()">
+    BACK
+  </div>
+</div>
+
+<div id = "fail" class = "menu" style = "visibility:hidden">
+  <div class = "failClass">
+    HAI PERSO
+  </div>
+  <div class = "backHomeButton" onclick="backHome()">
+    Torna al menu principale
+  </div>
+</div>
+
+<div id = "win" class = "menu" style = "visibility:hidden">
+  <div class = "failClass">
+    HAI VINTO
+  </div>
+  <div class = "backHomeButton" onclick="backHome_win()">
+    Torna al menu principale
+  </div>
+  <div class = "backHomeButton" onclick="nextLevel()">
+    Vai al livello successivo
+  </div>
+</div>
+
+<div id = "win_tot" class = "menu" style = "visibility:hidden">
+  <div id="completo" class = "failClass">
+    HAI COMPLETATO IL GIOCO!
+  </div>
+
+  <div id="MyForm" class="myForm" style = "display:none">
+    <div class = "inUsername" id="addUsername">
+      Inserisci il tuo username
+    </div>
+    <br />
+    <form>
+      <input id="username" type="text" name="Name" value="ciao" class="inputName">
+    </form>
+
+    <div class = "buttonUsername" onclick="addUser()">
+      OK
+    </div>
+  </div>
+
+
+  <div id = "listSc" style = "visibility:hidden">
+    <br /><br />
+    <div class = "scoreList" id="score1">
+      1    -
+    </div>
+    <div class = "scoreList" id="score2">
+      2    -
+    </div>
+    <div class = "scoreList" id="score3">
+      3    -
+    </div>
+    <div class = "scoreList" id="score4">
+      4    -
+    </div>
+
+
+  </div>
+
+
+  <br /><br /><br /><br /><br /><br />
+  <div class = "backHomeButton" onclick="backHome_win()">
+    Torna al menu principale
+  </div>
+
+</div>
+
+<div id = "chooseMode" class = "menu" style = "visibility:hidden">
+  <div class = "failClass">
+    Come vuoi giocare
+  </div>
+  <div class = "backHomeButton" onclick="startGame(1)">
+    Tastiera
+  </div>
+  <div class = "backHomeButton" onclick="smartphone_start()">
+    Smartphone
+  </div>
+</div>
+
+<div id="stats" style = "display:none" class = "menu">
+  <div id="completo" class = "failClass">
+    CLASSIFICA:
+  </div>
+  <div id = "listScore" style = "visibility:hidden">
+    <br /><br />
+    <div class = "scoreList" id="mainScore1">
+      1    -
+    </div>
+    <div class = "scoreList" id="mainScore2">
+      2    -
+    </div>
+    <div class = "scoreList" id="mainScore3">
+      3    -
+    </div>
+    <div class = "scoreList" id="mainScore4">
+      4    -
+    </div>
+    <div class = "options_lit" onclick="back()">
+      BACK
+    </div>
+</div>
+</div>
+
+
+<div id = "connectDevice" class = "menu" style = "visibility:hidden">
+  <div class = "failClass" style = "font-size: 150px">
+    Scansiona il qr code per giocare
+  </div>
+  <br><br><br><br>
+  <div id = "qrcode" style = "position: absolute; left: 45%;">
+  </div>
+
+</div>
+
+
+
+
+
+</body>
+
+</div>
+
+</html>

@@ -664,8 +664,18 @@ function backHome_win(){
 }
 
 function win(){
+  if(l==1){
+    score += 60 - secondi/1000;
 
-  score += 60 - secondi/1000;
+  }
+  else if(l==2){
+    score += 80 - secondi/1000;
+
+  }
+  else{
+    score += 100 - secondi/1000;
+
+  }
   if(l === 3){
     rendering = false;
     cancelAnimationFrame(an);
@@ -948,12 +958,10 @@ function mainScore(k1, k2, k3, k4){
 function getStats(){
   document.getElementById("stats").style = "display:block";
   document.getElementById("mainMenu").style = "visibility:hidden";
-  console.log("rwvrwww");
   if(input == null){
     input = io.connect();
   }
   input.emit('getStats');
-
 
   input.on('sendMainStats', mainScore);
 }

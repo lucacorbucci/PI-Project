@@ -2,18 +2,14 @@ var meshes=[], bodies=[];
 var world = new CANNON.World();
 world.quatNormalizeSkip = 0;
 world.quatNormalizeFast = false;
-
 world.gravity.set(0,-10,0);
 world.broadphase = new CANNON.NaiveBroadphase();
-
-
 var GROUP1 = 1;
 var GROUP2 = 2;
 var GROUP3 = 4;
 var GROUP4 = 4;
 var light1, light2, light3;
 var cubeMesh;
-
 var secondi = 60000;
 var ix = 0;
 var iy = 540;
@@ -34,53 +30,30 @@ var altezza = window.innerHeight;
 var score = 0;
 var redT = 0;
 var timeout;
+var world;
+var dt = 1 / 60;
 
-console.log(larghezza, altezza);
+var constraintDown = false;
+var camera, scene, renderer, gplane=false, clickMarker=false;
+var geometry, material, mesh;
+var controls,time = Date.now();
 
-function generatelights()
-{
-  // 0.17188360186396656 0.09762002423166649 0.03387711381022307
-  var color1 = 0.17188360186396656;
-  var color2 = 0.09762002423166649;
-  var color3 = 0.03387711381022307;
-  light1 = new THREE.DirectionalLight( color1 * 0xffffff );
-  var pos1 = 0.05564653731032887,
-  pos2 = 0.8243082874805607,
-  pos3 = 0.791083160913272;
+var jointBody, constrainedBody, mouseConstraint;
 
-  light1.position.x = pos1 + 0.5;
-  light1.position.y = pos2 + 0.5;
-  light1.position.z = pos3 + 0.5;
-  light1.position.normalize();
-  scene.add(light1);
-  pos1 = 0.5753064656276147;
-  pos2 = 0.2527997065223261;
-  pos3 = 0.7560471534216227;
+var container, camera, scene, renderer, projector;
+var boxBody2;
 
-  light2 = new THREE.DirectionalLight( color2 * 0xffffff );
-  light2.position.x = pos1 - 0.5;
-  light2.position.y = pos2 - 0.5;
-  light2.position.z = pos3 - 0.5;
-  light2.position.normalize();
-  scene.add(light2);
-  light3 = new THREE.DirectionalLight( color3 * 0xffffff );
 
-  light3.position.x = pos1 - 1;
-  light3.position.y = pos2 - 1;
-  light3.position.z = pos3 - 1;
-  light3.position.normalize();
-  scene.add(light3);
-}
-
-// Lets draw map!
+/*
+Algoritmo usato per generare il labirinto, alcune parti sono state
+modificate per fare in modo che il labirinto che viene generato venga poi
+disegnato con la libreria threejs e non con delle linee.
+*/
 function DrawMap(scene,level){
 
   var c = atob(wallMaze);
   var o = 0;
   var d;
-
-
-
 
   var material = new THREE.MeshLambertMaterial( { color: 0xffffff, overdraw: 0.5 } );
 
@@ -90,9 +63,8 @@ function DrawMap(scene,level){
   for (var x=0;x<dim1;x++)
   for (var y=0;y<dim2;y++)
   {
-    d = ~c.charCodeAt(x + y*dim1); // making NOT. Easier and faster (not to compare to exact number each time, just true/false)
+    d = ~c.charCodeAt(x + y*dim1);
 
-    // Let's masking to bits 1,2,3,4, and depending on result, paint a wall or not.
     if (d & 1) {paintRightWall(x,y,fullmesh, material); }
     if (d & 2) { paintUpWall(x,y,fullmesh, material);    }
     if (d & 4) { paintLeftWall(x,y,fullmesh, material);  }
@@ -101,79 +73,6 @@ function DrawMap(scene,level){
 
   scene.add(fullmesh);
 }
-
-// generate a 'cube' mesh
-function getCube(x,y,geometry,material){
-  var cube = new THREE.Mesh(geometry, material);
-
-  switch(l){
-    case 1:
-      cube.position.x = (x*50 - 350 + 25);
-      cube.position.z = (y*50 - 260 + 25);
-      cube.position.y = 40;
-      break;
-    case 2:
-      cube.position.x = (x*50 - 480 + 25);
-      cube.position.z = (y*50 - 350 + 25);
-      cube.position.y = 40;
-      break;
-    case 3:
-      cube.position.x = (x*50 - 550 + 25);
-      cube.position.z = (y*50 - 380 + 25);
-      cube.position.y = 40;
-      break;
-  }
-
-
-  return cube;
-}
-
-function addPhysicToCube(HWall){
-  var mazeShape = new CANNON.Box(new CANNON.Vec3(37,80,12));
-  var mazeBody = new CANNON.Body({ mass: 0 });
-  mazeBody.addShape(mazeShape);
-  mazeBody.position.set(HWall.position.x ,HWall.position.y,HWall.position.z );
-  mazeBody.collisionFilterGroup = GROUP1;
-  mazeBody.collisionFilterMask = GROUP3;
-  world.addBody(mazeBody);
-  bodies.push(mazeBody);
-}
-
-function addPhysicToCube1(HWall){
-  var mazeShape = new CANNON.Box(new CANNON.Vec3(37,80,12));
-  var mazeBody = new CANNON.Body({ mass: 0 });
-  mazeBody.addShape(mazeShape);
-  mazeBody.position.set(HWall.position.x,HWall.position.y,HWall.position.z );
-  // sta nel gruppo 1 però sotto gli dico con chi collide.
-  mazeBody.collisionFilterGroup = GROUP1;
-  mazeBody.collisionFilterMask = GROUP3;
-  world.addBody(mazeBody);
-  bodies.push(mazeBody);
-}
-
-function addPhysicToCube2(VWall){
-  var mazeShape = new CANNON.Box(new CANNON.Vec3(13,80,37));
-  var mazeBody = new CANNON.Body({ mass: 0 });
-  mazeBody.addShape(mazeShape);
-  mazeBody.position.set(VWall.position.x ,VWall.position.y,VWall.position.z);
-  mazeBody.collisionFilterGroup = GROUP1;
-  mazeBody.collisionFilterMask = GROUP3;
-  world.addBody(mazeBody);
-  bodies.push(mazeBody);
-}
-
-function addPhysicToCube3(VWall){
-  var mazeShape = new CANNON.Box(new CANNON.Vec3(13,80,37));
-  var mazeBody = new CANNON.Body({ mass: 0 });
-  mazeBody.addShape(mazeShape);
-  mazeBody.position.set(VWall.position.x ,VWall.position.y,VWall.position.z);
-  mazeBody.collisionFilterGroup = GROUP1;
-  mazeBody.collisionFilterMask = GROUP3;
-  world.addBody(mazeBody);
-  bodies.push(mazeBody);
-}
-
-
 
 function getHWall(x,y, material)
 {
@@ -230,71 +129,174 @@ function paintDownWall(x,y,mesh, material)
 }
 
 
-var world;
-var dt = 1 / 60;
-
-var constraintDown = false;
-var camera, scene, renderer, gplane=false, clickMarker=false;
-var geometry, material, mesh;
-var controls,time = Date.now();
-
-var jointBody, constrainedBody, mouseConstraint;
-
-var container, camera, scene, renderer, projector;
-var boxBody2;
-// To be synced
+// Funzione che crea i muri del labirinto, lo switch interno serve perchè a
+// seconda del livello ci sono delle caratteristiche diverse per i muri
+// perchè se il livello è più avanti il labirinto è più complicato
+function getCube(x,y,geometry,material){
+  var cube = new THREE.Mesh(geometry, material);
 
 
-// Initialize Three.js
+  switch(l){
+    case 1:
+    cube.position.x = (x*50 - 350 + 25);
+    cube.position.z = (y*50 - 260 + 25);
+    cube.position.y = 40;
+    break;
+    case 2:
+    cube.position.x = (x*50 - 480 + 25);
+    cube.position.z = (y*50 - 350 + 25);
+    cube.position.y = 40;
+    break;
+    case 3:
+    cube.position.x = (x*50 - 550 + 25);
+    cube.position.z = (y*50 - 380 + 25);
+    cube.position.y = 40;
+    break;
+  }
+
+  return cube;
+}
+
+/*
+Funzioni che servono ad aggiungere la "fisica" ai muri ovvero
+viene aggiunta la possibilità di far rimbalzare la palla
+All'interno delle funzioni mettiamo i muri nel gruppo 1 delle collisioni,
+poi diciamo che devono essere gestite solamente le collisioni con gli oggetti del
+gruppo3 che sarebbe quello della palla
+*/
+function addPhysicToCube(HWall){
+  var mazeShape = new CANNON.Box(new CANNON.Vec3(37,80,12));
+  var mazeBody = new CANNON.Body({ mass: 0 });
+  mazeBody.addShape(mazeShape);
+  mazeBody.position.set(HWall.position.x ,HWall.position.y,HWall.position.z );
+  mazeBody.collisionFilterGroup = GROUP1;
+  mazeBody.collisionFilterMask = GROUP3;
+  world.addBody(mazeBody);
+  bodies.push(mazeBody);
+}
+
+function addPhysicToCube1(HWall){
+  var mazeShape = new CANNON.Box(new CANNON.Vec3(37,80,12));
+  var mazeBody = new CANNON.Body({ mass: 0 });
+  mazeBody.addShape(mazeShape);
+  mazeBody.position.set(HWall.position.x,HWall.position.y,HWall.position.z );
+  // sta nel gruppo 1 però sotto gli dico con chi collide.
+  mazeBody.collisionFilterGroup = GROUP1;
+  mazeBody.collisionFilterMask = GROUP3;
+  world.addBody(mazeBody);
+  bodies.push(mazeBody);
+}
+
+function addPhysicToCube2(VWall){
+  var mazeShape = new CANNON.Box(new CANNON.Vec3(13,80,37));
+  var mazeBody = new CANNON.Body({ mass: 0 });
+  mazeBody.addShape(mazeShape);
+  mazeBody.position.set(VWall.position.x ,VWall.position.y,VWall.position.z);
+  mazeBody.collisionFilterGroup = GROUP1;
+  mazeBody.collisionFilterMask = GROUP3;
+  world.addBody(mazeBody);
+  bodies.push(mazeBody);
+}
+
+function addPhysicToCube3(VWall){
+  var mazeShape = new CANNON.Box(new CANNON.Vec3(13,80,37));
+  var mazeBody = new CANNON.Body({ mass: 0 });
+  mazeBody.addShape(mazeShape);
+  mazeBody.position.set(VWall.position.x ,VWall.position.y,VWall.position.z);
+  mazeBody.collisionFilterGroup = GROUP1;
+  mazeBody.collisionFilterMask = GROUP3;
+  world.addBody(mazeBody);
+  bodies.push(mazeBody);
+}
+
+
+// Funzione per generare le luci, generando le luci vado a colorare
+// i vari elementi della scena, quindi per questo i valori numerici sono proprio scelti
+// precisamente
+function generatelights()
+{
+
+  var color1 = 0.17188360186396656;
+  var color2 = 0.09762002423166649;
+  var color3 = 0.03387711381022307;
+  light1 = new THREE.DirectionalLight( color1 * 0xffffff );
+  var pos1 = 0.05564653731032887,
+  pos2 = 0.8243082874805607,
+  pos3 = 0.791083160913272;
+
+  light1.position.x = pos1 + 0.5;
+  light1.position.y = pos2 + 0.5;
+  light1.position.z = pos3 + 0.5;
+  light1.position.normalize();
+  scene.add(light1);
+  pos1 = 0.5753064656276147;
+  pos2 = 0.2527997065223261;
+  pos3 = 0.7560471534216227;
+
+  light2 = new THREE.DirectionalLight( color2 * 0xffffff );
+  light2.position.x = pos1 - 0.5;
+  light2.position.y = pos2 - 0.5;
+  light2.position.z = pos3 - 0.5;
+  light2.position.normalize();
+  scene.add(light2);
+  light3 = new THREE.DirectionalLight( color3 * 0xffffff );
+
+  light3.position.x = pos1 - 1;
+  light3.position.y = pos2 - 1;
+  light3.position.z = pos3 - 1;
+  light3.position.normalize();
+  scene.add(light3);
+}
+
 if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
 
-
+/*
+Funzione che viene chiamata quando devo avviare il gioco, prende come parametro un numero
+compreso tra 1 e 3 che mi indica quale livello sto giocando.
+*/
 function startGame(level){
 
+  secondi = 60000;
+
+  // A seconda del livello scelto prendo le specifiche del labirinto
+  // di quel livello che devo andare a disegnare
+  switch(level){
+    case 1:
+    l = 1;
     secondi = 60000;
+    dim1 = myJSON.level1.dim1;
+    dim2 = myJSON.level1.dim2;
+    wallMaze = myJSON.level1.wall;
+    break;
+    case 2:
+    secondi = 80000;
+    dim1 = myJSON.level2.dim1;
+    dim2 = myJSON.level2.dim2;
+    wallMaze = myJSON.level2.wall;
+    break;
+    case 3:
+    secondi = 100000;
+    dim1 = myJSON.level3.dim1;
+    dim2 = myJSON.level3.dim2;
+    wallMaze = myJSON.level3.wall;
+    break;
 
-
-    switch(level){
-      case 1:
-        l = 1;
-        secondi = 60000;
-        dim1 = myJSON.level1.dim1;
-        dim2 = myJSON.level1.dim2;
-        wallMaze = myJSON.level1.wall;
-        break;
-      case 2:
-        secondi = 80000;
-        dim1 = myJSON.level2.dim1;
-        dim2 = myJSON.level2.dim2;
-        wallMaze = myJSON.level2.wall;
-        break;
-      case 3:
-        secondi = 100000;
-        dim1 = myJSON.level3.dim1;
-        dim2 = myJSON.level3.dim2;
-        wallMaze = myJSON.level3.wall;
-        break;
-
-    }
+  }
 
 
   rendering = true;
   game = document.createElement( 'div' );
   game.id = "cnt";
   game.className = "mazecnt";
-
-
-
   document.body.appendChild(game);
   document.getElementById("chooseMode").style = "visibility:hidden";
   text = document.createElement('div');
   text.id = "text";
   text.className = "textcl";
-
   game.appendChild(text);
 
-
+  // Pulsante per uscire dal gioco
   goHome = document.createElement('div');
   goHome.id = "goHome";
   goHome.className = "goHome";
@@ -303,7 +305,7 @@ function startGame(level){
   game.appendChild(goHome);
 
 
-
+  // Chiamo le funzioni per disegnare la scena
   initCannon();
   init(level);
   animate();
@@ -312,6 +314,9 @@ function startGame(level){
 
   document.getElementById("text").style = "visibility:visible";
 
+
+  // Attivo il timer per fare in modo che venga contato il tempo che passa in modo
+  // che se supero un certo tempo perdo la partita.
   timeout = setTimeout(function(){
     fail();
   }, secondi);
@@ -323,11 +328,7 @@ function startGame(level){
 
 
 function init(level) {
-/*
-  if(larghezza < 650){
-    error()
-  }
-  */
+
   projector = new THREE.Projector();
 
   container = document.createElement( 'div' );
@@ -339,70 +340,68 @@ function init(level) {
   scene.position.y = 400;
   scene.position.z = 0;
 
-
-  // camera    var camera = new THREE.PerspectiveCamera(50, 500 / 400, 0.1, 1000);
   camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 2000);
 
+
+  // Cerco di aggiustare la dimensione del labirinto in base alla dimensione
+  // dello schermo
   switch(l){
     case 1:
-      var b = 750;
+    var b = 750;
 
-      if(larghezza < 800){
-        b += 1200;
-      }
-      else if(larghezza < 1200){
-        b += 600;
-      }
-      else if(larghezza < 1500){
-        b += 300;
-      }
+    if(larghezza < 800){
+      b += 1200;
+    }
+    else if(larghezza < 1200){
+      b += 600;
+    }
+    else if(larghezza < 1500){
+      b += 300;
+    }
 
-      camera.position.y = b;
-      camera.position.x = 0;
-      camera.position.z = 20;
-      break;
+    camera.position.y = b;
+    camera.position.x = 0;
+    camera.position.z = 20;
+    break;
     case 2:
-      var b = 950;
+    var b = 950;
 
-      if(larghezza < 800){
-        b += 900;
-      }
-      else if(larghezza < 1200){
-        b += 700;
-      }
-      else if(larghezza < 1500){
-        b += 300;
-      }
+    if(larghezza < 800){
+      b += 900;
+    }
+    else if(larghezza < 1200){
+      b += 700;
+    }
+    else if(larghezza < 1500){
+      b += 300;
+    }
 
-      camera.position.y = b;
-      camera.position.x = 0;
-      camera.position.z = 20;
-      break;
+    camera.position.y = b;
+    camera.position.x = 0;
+    camera.position.z = 20;
+    break;
     case 3:
-      var b = 1000;
+    var b = 1000;
 
-      if(larghezza < 800){
-        b += 900;
-      }
-      else if(larghezza < 1200){
-        b += 700;
-      }
-      else if(larghezza < 1500){
-        b += 500;
-      }
+    if(larghezza < 800){
+      b += 900;
+    }
+    else if(larghezza < 1200){
+      b += 700;
+    }
+    else if(larghezza < 1500){
+      b += 500;
+    }
 
-      camera.position.y = b;
-      camera.position.x = 0;
-      camera.position.z = 20;
-      break;
+    camera.position.y = b;
+    camera.position.x = 0;
+    camera.position.z = 20;
+    break;
   }
-
-
-
 
   scene.add(camera);
 
-  // piano rosso
+  // piano rosso ovvero il punto di arrivo
   var planeGeometry = new THREE.PlaneGeometry();
   var planeMaterial = new THREE.MeshBasicMaterial({color: 0xffff00});
   var plane = new THREE.Mesh(planeGeometry, planeMaterial);
@@ -435,8 +434,6 @@ function init(level) {
 
   scene.add(plane2);
 
-  //Vec3 {x: 70.7828894525883, y: 0.9999884859948378, z: -14.791493985378587, cross: function, set: function, …} (threejs_mousepick_mod.html, line 365)
-
 
   // palla
   var cubeGeo = new THREE.SphereGeometry(10, 10, 10, 0, Math.PI * 2, 0, Math.PI * 2);
@@ -466,11 +463,8 @@ function init(level) {
 
 }
 
-
-
 function animate() {
   an = requestAnimationFrame( animate );
-  //controls.update();
   updatePhysics();
   render();
 }
@@ -483,7 +477,15 @@ function updatePhysics(){
   }
 }
 
+
+/*
+Funzione che controlla se mi trovo nella posizione in cui devo arrivare per vincere
+oppure no, se mi ci trovo finisce la partita .
+
+La funzione gestisce anche lo spostamento della pallina andando a modificare la sua posizione
+*/
 function render() {
+
   if(rendering){
     if(l == 1 && cubeMesh.position.x >= 113 && cubeMesh.position.x <= 137 && cubeMesh.position.y >= 0 && cubeMesh.position.y <= 5 && cubeMesh.position.z >= 102 && cubeMesh.position.z <= 120){
       win();
@@ -498,8 +500,6 @@ function render() {
       camera.lookAt(new THREE.Vector3(0,100,0));
       renderer.render(scene, camera);
       document.getElementById("text").innerHTML = "Tempo Rimanente: <br>" + secondi/1000 + " secondi";
-
-
     }
 
 
@@ -533,14 +533,17 @@ function render() {
         boxBody.velocity.set(100,y,z);
       }
 
-
-
     }
 
   }
 
 }
 
+/*
+
+Funzione che si occupa di aggiungere la fisica agli elementi della scena
+
+*/
 function initCannon(){
 
   var mass = 5, radius = 1.3;
@@ -550,20 +553,22 @@ function initCannon(){
   // PALLA
   boxBody = new CANNON.Body({ mass: 10 });
   boxBody.addShape(boxShape);
+
+  // Il posizionamento della palla dipende dal livello, se sono al livello 3
+  // la palla è messa vicino al traguardo per semplificare, poi si cambia
   if(l === 1){
     boxBody.position.set(130,1,-50);
-    //boxBody.position.set(130,1,160);
-
   }
   else if(l === 2){
     boxBody.position.set(150,1,-200);
-
-    //boxBody.position.set(150,1,280);
-
   }
   else {
     boxBody.position.set(180,1,125);
   }
+
+  // La palla è nel gruppo 3 per le collisioni e collide con il gruppo1
+  // e con il 2, in particolare con il gruppo2 ci sta solamente sopra
+  // perchè è la base
   boxBody.collisionFilterGroup = GROUP3;
   boxBody.collisionFilterMask = GROUP1 | GROUP2;
 
@@ -580,9 +585,9 @@ function initCannon(){
 
   world.addBody(groundBody);
 
-
 }
 
+// Funzione che controlla i tasti che vengono premuti
 document.addEventListener("keydown", onDocumentKeyDown, false);
 function onDocumentKeyDown(event) {
 
@@ -614,6 +619,7 @@ function onDocumentKeyDown(event) {
 
 var music = true;
 
+// Funzione che serve per bloccare la musica che si sente mentre gioco
 function stopMusic(){
   var sounds = document.getElementsByTagName('audio');
   for(i=0; i<sounds.length; i++){
@@ -629,12 +635,13 @@ function stopMusic(){
 
 }
 
-
+// Funzione chimata quando clicco su autore
 function getAutore(){
   document.getElementById("autore").style = "visibility:visible";
   document.getElementById("mainMenu").style = "visibility:hidden";
 }
 
+// Funzione associata al pulsante back
 function back(){
   document.getElementById("stats").style = "display:none";
   document.getElementById("autore").style = "visibility:hidden";
@@ -642,11 +649,13 @@ function back(){
   document.getElementById("mainMenu").style = "visibility:visible";
 }
 
+// Funzione chimata quando clicco su backhome
 function backHome(){
   document.getElementById("fail").style = "visibility:hidden";
   document.getElementById("mainMenu").style = "visibility:visible";
 }
 
+// funzione che viene chiamata quando vinco il livello
 function backHome_win(){
   l = 1;
   document.getElementById("score" + redT).style = "color: black";
@@ -663,6 +672,13 @@ function backHome_win(){
 
 }
 
+/*
+
+  Funzione della vittoria, controllo il livello che ho giocato e poi
+  vado a calcolarmi il punteggio relativo al tempo che ho impiegato
+  per finire il livello.
+  E' importante stoppare il timer.
+*/
 function win(){
   if(l==1){
     score += 60 - secondi/1000;
@@ -676,6 +692,8 @@ function win(){
     score += 100 - secondi/1000;
 
   }
+
+
   if(l === 3){
     rendering = false;
     cancelAnimationFrame(an);
@@ -705,6 +723,7 @@ function win(){
 
 }
 
+// Funzione che viene chiamata quando si perde
 function fail(){
   document.getElementById("fail").style = "visibility:visible";
   clearInterval(interval);
@@ -714,6 +733,7 @@ function fail(){
   cancelAnimationFrame(an);
 }
 
+// Funzione che viene chiamata quando clicco sul pulsante per scegliere la modalità di gioco
 function chooseMode(){
   $.getJSON("info.json", function(json){
     myJSON = json;
@@ -725,24 +745,31 @@ function chooseMode(){
   document.getElementById("chooseMode").style = "visibility:visible";
 }
 
+
+/*
+  Funzione che viene chiamata quando decido di giocare con lo smartphone
+*/
 function smartphone_start(){
+
   input = io.connect();
 
-  // Caso in cui sto sul dispositivo e clicco su smartphone.
+  // Caso in cui sto sul dispositivo e clicco su smartphone, devo controllare
+  // se nell'url ho anche l'id, se ho l'id emetto un controller_connect.
   if (window.location.href.indexOf('?id=') > 0) {
 
     input.emit('controller_connect', window.location.href.split('?id=')[1]);
 
   }
+  // In questo caso sono sul browser del ccomputer e aspetto che qualcuno si connetta
+  // per connettersi devono scansionare un qr code che faccio apparire qua sotto.
   else {
-
     input.on('connect', function() {
       input.emit('game_connect');
     });
 
     input.on('controller_connected', function(connected){
       if (connected) {
-        alert("connnn");
+        alert("Dispositivo connesso, premi ok per giocare");
 
         qr.style.display = "none";
         document.getElementById("connectDevice").style = "visibility:hidden";
@@ -769,6 +796,7 @@ function smartphone_start(){
 
   }
 
+
   var game_connected = function() {
     var url = "http://54.37.156.9:8089?id=" + input.id;
     input.removeListener('game_connected', game_connected);
@@ -786,8 +814,10 @@ function smartphone_start(){
 
   };
 
+  // quando ho ricevuto una nuova connessione
   input.on('game_connected', game_connected);
 
+  // Quando si muove lo smartphone
   var emit_updates = function(){
     input.emit('controller_state_change', controller_state);
   }
@@ -835,10 +865,16 @@ window.addEventListener( 'resize', onWindowResize, false );
 
 function onWindowResize(){
 
-    renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setSize(window.innerWidth, window.innerHeight);
 
 }
 
+
+/*
+
+  Funzione di supporto che serve per mostrare la classifica del gioco
+
+*/
 function listener(k1, k2, k3, k4, k, num){
   score = 0;
   var array = [];
@@ -898,7 +934,7 @@ function listener(k1, k2, k3, k4, k, num){
 
 }
 
-
+// aggiunta di un nuovo utente alla classifica
 function addUser(){
   var name = document.getElementById("username").value;
 
@@ -914,7 +950,7 @@ function addUser(){
 }
 
 
-
+// funzione per prendere la classifica senza giocare
 function mainScore(k1, k2, k3, k4){
 
   var array = [];
@@ -968,7 +1004,6 @@ function getStats(){
 
 
 function stopGame(){
-  console.log("Ciao");
   clearInterval(interval);
   clearTimeout(timeout);
   document.getElementById("cnt").remove();

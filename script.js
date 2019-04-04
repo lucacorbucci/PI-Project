@@ -797,8 +797,8 @@ function smartphone_start(){
   }
 
 
-  var game_connected = function() {
-    var url = "http://54.37.156.9:8089?id=" + input.id;
+  var game_connected = function() { 
+    var url = "http://192.168.1.107:8089?id=" + input.id;
     input.removeListener('game_connected', game_connected);
 
     document.getElementById("chooseMode").style = "visibility:hidden";
@@ -819,6 +819,7 @@ function smartphone_start(){
 
   // Quando si muove lo smartphone
   var emit_updates = function(){
+
     input.emit('controller_state_change', controller_state);
   }
   touchstart = function(e){

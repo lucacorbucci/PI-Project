@@ -102,8 +102,8 @@ io.sockets.on('connection', function (socket) {
       // Se sono arrivati questi dati allora vado a vedere nell'array dei client game aperti e mando una segnalazione
       // al client aperto in modo che venga spostata la pallina.
       socket.on('controller_state_change', function(data){
-        if(game_sockets[game_socket_id]){
 
+        if(game_sockets[game_socket_id]){
           game_sockets[game_socket_id].socket.emit("controller_state_change", data);
         }
       });

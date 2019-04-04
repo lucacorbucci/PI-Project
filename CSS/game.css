@@ -1,0 +1,285 @@
+@import url(https://fonts.googleapis.com/css?family=Fjalla+One);
+
+
+html, body {
+  font-family: 'Fjalla One', sans-serif;
+  width: 100%;
+  height: 100%;
+  margin: 120;
+  padding:0;
+  overflow: hidden;
+  background-color: #9fa7b7;
+}
+
+.mazecnt {
+  max-width: 75%;
+  resize: none;
+  background-color: #9fa7b7;
+}
+
+.container{
+  background-color: #9fa7b7;
+
+}
+
+.menu{
+  position:absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to right, aqua, bisque);
+  text-align: center;
+  align-content: center;
+  align-items: center;
+}
+
+.options{
+  position: relative;
+  width: 700px;
+  height: 83px;
+  vertical-align: center;
+  align-content: center;
+  margin-top: 30px;
+  color: black;
+  font-size: 80px;
+  background-color: azure;
+  margin-right: auto;
+  margin-left: auto;
+  padding-top: 30px;
+  padding-bottom: 30px;
+  border-radius: 20px;
+
+}
+
+.options:hover{
+  background-color: #f1c83c;
+}
+
+.options:active{
+  background-color: #f1c83c;
+  width: 680px;
+  height: 70;
+}
+
+.title{
+  margin-top: 150px;
+  font-size: 170px;
+  color: #f1c83c;
+  text-shadow: #533d4a 5px 5px;
+}
+
+.music{
+  width: 120px;
+  height: 70px;
+  color: black;
+  font-size: 30px;
+  border-radius: 20px;
+  background-color: azure;
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+
+}
+
+.music:hover{
+  background-color: #f1c83c;
+
+}
+
+.music:active{
+  background-color: #f1c83c;
+  width: 110px;
+  height: 65px;
+  padding-top: 0px;
+}
+
+.options_lit{
+  width: 200px;
+  height: 80px;
+  color: black;
+  font-size: 40px;
+  position: absolute;
+  bottom: 20px;
+  margin-left: 20px;
+  border-radius: 20px;
+  background-color: azure;
+  text-align: center;
+  padding-top : 25px
+}
+
+.options_lit:hover{
+  background-color: #f1c83c;
+}
+
+.options_lit:active{
+  background-color: #f1c83c;
+  width: 180px;
+  height: 70px;
+  padding-top: 18px;
+}
+
+.presentazione{
+  font-size: 80px;
+  white-space: pre-wrap;
+}
+
+.textcl{
+  font-size: 3.5vw;
+  position: absolute;
+  top: 300px;
+  right: 100px;
+}
+
+
+
+.goHome{
+  width: 300px;
+  height: 150px;
+  color: black;
+  font-size: 50px;
+  position: absolute;
+  top: 600px;
+  right: 320px;
+  border-radius: 20px;
+  background-color: azure;
+  text-align: center;
+  padding-top : 25px
+}
+
+.goHome:hover{
+  background-color: #f1c83c;
+}
+
+.goHome:active{
+  background-color: #f1c83c;
+  width: 280px;
+  height: 130px;
+  padding-top: 10px;
+}
+
+.backHomeButton{
+  position: relative;
+  width: 300px;
+  height: 95px;
+  vertical-align: center;
+  align-content: center;
+  margin-top: 30px;
+  color: black;
+  font-size: 40px;
+  background-color: azure;
+  margin-right: auto;
+  margin-left: auto;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-radius: 20px;
+}
+
+.backHomeButton:hover{
+  background-color: #f1c83c;
+}
+
+.backHomeButton:active{
+  background-color: #f1c83c;
+  width: 285px;
+  height: 90px;
+  padding-top: 0px;
+}
+
+.failClass{
+  margin-top: 300px;
+  font-size: 200px;
+}
+
+.inUsername{
+  margin-top: 300px;
+  font-size: 60px;
+}
+
+.level_selection{
+  margin-top: 300px;
+  font-size: 100px;
+}
+
+
+.level_selection_button{
+  position: relative;
+  width: 300px;
+  height: 95px;
+  margin-left: 35px;
+  color: black;
+  font-size: 40px;
+  background-color: azure;
+  padding-top: 48px;
+  padding-bottom: 10px;
+  border-radius: 20px;
+  float: left;
+}
+
+.level_selection_button:hover{
+  background-color: #f1c83c;
+}
+
+.level_selection_button:active{
+  background-color: #f1c83c;
+  width: 285px;
+  height: 90px;
+  padding-top: 0px;
+}
+
+.box{
+  margin-top:100px;
+  width: 1050px;
+  align: center;
+  position: relative;
+  vertical-align: center;
+  align-content: center;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.inputName{
+  height: 70px;
+  width: 60%;
+  font-size: 30px;
+  text-align: center;
+  display: inline-block;
+  float:left;
+  margin-left: 20%;
+  border-radius: 20px;
+}
+
+.buttonUsername{
+  position: absolute;
+  width: 300px;
+  height: 75px;
+  color: black;
+  font-size: 50px;
+  background-color: azure;
+  display: inline-block;
+  border-radius: 20px;
+  right: 200px;
+}
+
+.buttonUsername:hover{
+  background-color: #f1c83c;
+}
+
+.buttonUsername:active{
+  background-color: #f1c83c;
+  width: 285px;
+  height: 68px;
+  padding-top: 0px;
+}
+
+.myForm{
+  text-align:center;
+  position:relative;
+}
+
+.score{
+  font-size: 60px;
+}
+
+.scoreList{
+  font-size: 100px;
+  color: black;
+}
